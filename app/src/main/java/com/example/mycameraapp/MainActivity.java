@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -14,6 +15,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,6 +69,44 @@ private void loadCamera(){
             Bundle extras = data.getExtras();
             Bitmap imageBmap = (Bitmap) extras.get("data");
             imageView.setImageBitmap(imageBmap);
+
+            //save to sd card
+            saveTOSD(imageBmap);
+        }
+    }
+
+
+
+    private void saveTOSD(Bitmap bitmap) {
+
+        File sdCardDirectory = Environment.getExternalStorageDirectory();
+        File image = new File(sdCardDirectory, "myImage.png");
+
+        boolean success = false;
+
+// Encode the file as a PNG image.
+        FileOutputStream outStream;
+        try {
+
+            outStream = new FileOutputStream(image);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+            /* 100 to keep full quality of the image */
+
+            outStream.flush();
+            outStream.close();
+            success = true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (success) {
+            Toast.makeText(getApplicationContext(), "Image saved",
+                    Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getApplicationContext(),
+                    "Error during image saving", Toast.LENGTH_LONG).show();
         }
     }
 }
